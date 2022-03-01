@@ -17,10 +17,25 @@ class ClosestDiamondLogic(object):
     def get_distance_between_positions(self, a, b):
         return self.manhattan(a, b)
 
-    # def get_distance_to_home(self, board_bot, board):
+    def get_distance_to_home(self, board_bot):
+        base = board_bot["properties"]["base"]
+        current_position = board_bot["position"]
+        cur_x = current_position["x"]
+        cur_y = current_position["y"]
 
+        return self.get_distance_between_positions((base["x"], base["y"]), (cur_x, cur_y))
 
-    def get_closest_diamond_position(self, board_bot, board):
+    def get_distance_to_reset_button(self, board_bot, board):
+        current_position = board_bot["position"]
+        cur_x = current_position["x"]
+        cur_y = current_position["y"]
+        diamond_x = board.diamondButton['position']['x']
+        diamond_y = board.diamondButton['position']['y']
+
+        return board.diamondButton['position'], self.get_distance_between_positions((diamond_x, diamond_y), (cur_x, cur_y))
+
+    # millisecondsLeft
+    def get_closest_diamond_position_and_distance(self, board_bot, board):
         current_position = board_bot["position"]
         cur_x = current_position["x"]
         cur_y = current_position["y"]
@@ -39,29 +54,42 @@ class ClosestDiamondLogic(object):
 
         # if we have diamonds in bag and there is no time left
 
-        return selected_diamond_pos
+        return selected_diamond_pos, distance
 
     # todo: if there isn't enough time left, go to base
     # todo: if there are 4 diamonds in the backpack, do not pick red ones
+    # todo: if fewer diamonds on the board then our current highscore
+    # todo: if reset button is closer than any diamond, go to there
 
     def next_move(self, board_bot, board):
-        print(board_bot)
+        # print(board_bot)
+
         props = board_bot["properties"]
+        closest_diamond_distance = 99999
+        base = props["base"]
 
         # Analyze new state
         if props["diamonds"] >= 4:
             # Move to base if we are full of diamonds
-            base = props["base"]
             self.goal_position = base
 
         # elif props["diamonds"] > 0 and
         else:
-            # Move towards first diamond on board
-            # self.goal_position = board.diamonds[0].get('position')
-            self.goal_position = self.get_closest_diamond_position(board_bot, board)
-            # elif props["diamonds"] > 0 and
-            print(self.goal_position)
+            closest_diamond_position, closest_diamond_distance = self.get_closest_diamond_position_and_distance(board_bot, board)
+            home_distance = self.get_distance_to_home(board_bot)
+            reset_button_position, reset_distance = self.get_distance_to_reset_button(board_bot, board)
+            if props["diamonds"] == 0:
+                # print('aaaaaaaaa', closest_diamond_position, reset_button_position)
+                if closest_diamond_distance < reset_distance:
+                    self.goal_position = closest_diamond_position
+                else:
+                    self.goal_position = reset_button_position
+            elif props["diamonds"] > 0 and self.get_distance_to_home(board_bot) <= closest_diamond_distance:
+                self.goal_position = base
+            else:
+                self.goal_position = closest_diamond_position
 
+        print(self.goal_position)
         if self.goal_position:
             # Calculate move according to goal position
             current_position = board_bot["position"]
