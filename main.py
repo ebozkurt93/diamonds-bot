@@ -139,6 +139,7 @@ if not current_board_id:
 ###############################################################################
 board = bot.get_board(current_board_id)
 move_delay = board.data["minimumDelayBetweenMoves"] / 1000
+# move_delay = board.data["minimumDelayBetweenMoves"] / 1000000000
 
 ###############################################################################
 #
@@ -168,7 +169,7 @@ while True:
 
     # Don't spam the board more than it allows!
     # sleep(move_delay * time_factor)
-    sleep(1)
+    sleep(0.0001)
 
 ###############################################################################
 #
