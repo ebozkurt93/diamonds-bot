@@ -9,9 +9,16 @@ class ClosestDiamondLogic(object):
         self.previous_position = (None, None)
         self.turn_direction = 1
 
+
     @staticmethod
     def manhattan(a, b):
         return sum(abs(val1 - val2) for val1, val2 in zip(a, b))
+
+    def get_distance_between_positions(self, a, b):
+        return self.manhattan(a, b)
+
+    # def get_distance_to_home(self, board_bot, board):
+
 
     def get_closest_diamond_position(self, board_bot, board):
         current_position = board_bot["position"]
@@ -24,32 +31,35 @@ class ClosestDiamondLogic(object):
         for diamond in board.diamonds:
             diamond_pos = diamond.get('position')
 
-            delta_x, delta_y = get_direction(
-                cur_x,
-                cur_y,
-                diamond_pos["x"],
-                diamond_pos["y"],
-            )
             manhattan_dist = self.manhattan((cur_x, cur_y), (diamond_pos["x"], diamond_pos["y"]))
-            if selected_diamond is None or distance > delta_x + delta_y:
+            if selected_diamond is None or distance > manhattan_dist:
                 selected_diamond = diamond
                 distance = manhattan_dist
                 selected_diamond_pos = diamond_pos
+
+        # if we have diamonds in bag and there is no time left
+
         return selected_diamond_pos
+
+    # todo: if there isn't enough time left, go to base
+    # todo: if there are 4 diamonds in the backpack, do not pick red ones
 
     def next_move(self, board_bot, board):
         print(board_bot)
         props = board_bot["properties"]
 
         # Analyze new state
-        if props["diamonds"] == 5:
+        if props["diamonds"] >= 4:
             # Move to base if we are full of diamonds
             base = props["base"]
             self.goal_position = base
+
+        # elif props["diamonds"] > 0 and
         else:
             # Move towards first diamond on board
             # self.goal_position = board.diamonds[0].get('position')
             self.goal_position = self.get_closest_diamond_position(board_bot, board)
+            # elif props["diamonds"] > 0 and
             print(self.goal_position)
 
         if self.goal_position:
