@@ -101,8 +101,8 @@ class ClosestDiamondLogic(object):
                     self.goal_position = reset_button_position
             elif props["diamonds"] > 0 and (time_left / 10) + 2 <= home_distance:
                 self.goal_position = base
-            elif props["diamonds"] > 0 and self.get_distance_to_home(board_bot) <= closest_diamond_distance:
-                self.goal_position = base
+            # elif props["diamonds"] > 0 and self.get_distance_to_home(board_bot) <= closest_diamond_distance:
+            #     self.goal_position = base
             else:
                 self.goal_position = closest_diamond_position
 
