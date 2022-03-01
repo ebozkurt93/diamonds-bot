@@ -1,5 +1,6 @@
 import random
 from ..util import get_direction
+from math import sqrt
 
 
 class ClosestDiamondLogic(object):
@@ -7,6 +8,10 @@ class ClosestDiamondLogic(object):
         self.goal_position = None
         self.previous_position = (None, None)
         self.turn_direction = 1
+
+    @staticmethod
+    def manhattan(a, b):
+        return sum(abs(val1 - val2) for val1, val2 in zip(a, b))
 
     def get_closest_diamond_position(self, board_bot, board):
         current_position = board_bot["position"]
@@ -25,9 +30,10 @@ class ClosestDiamondLogic(object):
                 diamond_pos["x"],
                 diamond_pos["y"],
             )
+            manhattan_dist = self.manhattan((cur_x, cur_y), (diamond_pos["x"], diamond_pos["y"]))
             if selected_diamond is None or distance > delta_x + delta_y:
                 selected_diamond = diamond
-                distance = delta_x + delta_y
+                distance = manhattan_dist
                 selected_diamond_pos = diamond_pos
         return selected_diamond_pos
 
